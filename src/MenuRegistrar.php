@@ -3,11 +3,12 @@
 namespace AcrossAI_Main_Menu;
 
 /**
- * Registers the AcrossAI parent menu and its shared submenus (Add-ons, Settings).
+ * Registers the AcrossAI parent menu and its shared submenus (Add-ons, Settings, Consultations).
  *
  * Parent menu is registered at the default admin_menu priority (10).
  * Settings is registered at priority 20 so it lands right after the Dashboard.
- * Add-ons is registered at priority 1000 so it lands last.
+ * Add-ons is registered at priority 1000.
+ * Consultations is registered at priority 1010 so it lands after Add-ons.
  */
 class MenuRegistrar {
 
@@ -20,6 +21,9 @@ class MenuRegistrar {
 	/** @var string */
 	private $settings_slug;
 
+	/** @var string */
+	private $consultations_slug;
+
 	/** @var DashboardRenderer */
 	private $dashboard_renderer;
 
@@ -29,26 +33,36 @@ class MenuRegistrar {
 	/** @var TabbedPageRenderer */
 	private $settings_renderer;
 
+	/** @var ConsultationsPageRenderer */
+	private $consultations_renderer;
+
 	/** @var string|null Hook suffix returned by the Settings add_submenu_page(). */
 	private $hook_suffix = null;
 
 	/** @var string|null Hook suffix returned by the Add-ons add_submenu_page(). */
 	private $addons_hook_suffix = null;
 
+	/** @var string|null Hook suffix returned by the Consultations add_submenu_page(). */
+	private $consultations_hook_suffix = null;
+
 	public function __construct(
 		string $parent_slug,
 		string $addons_slug,
 		string $settings_slug,
+		string $consultations_slug,
 		DashboardRenderer $dashboard_renderer,
 		AddonsPageRenderer $addons_renderer,
-		TabbedPageRenderer $settings_renderer
+		TabbedPageRenderer $settings_renderer,
+		ConsultationsPageRenderer $consultations_renderer
 	) {
-		$this->parent_slug        = $parent_slug;
-		$this->addons_slug        = $addons_slug;
-		$this->settings_slug      = $settings_slug;
-		$this->dashboard_renderer = $dashboard_renderer;
-		$this->addons_renderer    = $addons_renderer;
-		$this->settings_renderer  = $settings_renderer;
+		$this->parent_slug            = $parent_slug;
+		$this->addons_slug            = $addons_slug;
+		$this->settings_slug          = $settings_slug;
+		$this->consultations_slug     = $consultations_slug;
+		$this->dashboard_renderer     = $dashboard_renderer;
+		$this->addons_renderer        = $addons_renderer;
+		$this->settings_renderer      = $settings_renderer;
+		$this->consultations_renderer = $consultations_renderer;
 	}
 
 	public function register_parent(): void {
@@ -83,11 +97,26 @@ class MenuRegistrar {
 		);
 	}
 
+	public function register_consultations_submenu(): void {
+		$this->consultations_hook_suffix = add_submenu_page(
+			$this->parent_slug,
+			__( 'Consultations', 'acrossai' ),
+			__( 'Consultations', 'acrossai' ),
+			'manage_options',
+			$this->consultations_slug,
+			[ $this->consultations_renderer, 'render' ]
+		);
+	}
+
 	public function get_hook_suffix(): ?string {
 		return $this->hook_suffix;
 	}
 
 	public function get_addons_hook_suffix(): ?string {
 		return $this->addons_hook_suffix;
+	}
+
+	public function get_consultations_hook_suffix(): ?string {
+		return $this->consultations_hook_suffix;
 	}
 }

@@ -30,9 +30,10 @@ namespace AcrossAI_Main_Menu;
  */
 class SettingsPage {
 
-	const PARENT_SLUG   = 'acrossai';
-	const ADDONS_SLUG   = 'acrossai-addons';
-	const SETTINGS_SLUG = 'acrossai-settings';
+	const PARENT_SLUG        = 'acrossai';
+	const ADDONS_SLUG        = 'acrossai-addons';
+	const SETTINGS_SLUG      = 'acrossai-settings';
+	const CONSULTATIONS_SLUG = 'acrossai-consultations';
 
 	/** @var self|null Shared instance — first construction wins for both `instance()` and `new`. */
 	private static $_instance = null;
@@ -77,6 +78,9 @@ class SettingsPage {
 	/** @var AddonsAjaxHandlers */
 	private $addons_ajax;
 
+	/** @var ConsultationsPageRenderer */
+	private $consultations_renderer;
+
 	public function __construct() {
 		if ( null !== self::$_instance ) {
 			// Legacy `new` path from a second consumer — first construction wins.
@@ -88,19 +92,23 @@ class SettingsPage {
 		$this->addons_installer   = new AddonsInstaller();
 		$this->addons_renderer    = new AddonsPageRenderer( $this->addons_installer );
 		$this->addons_ajax        = new AddonsAjaxHandlers( $this->addons_installer, $this->addons_renderer );
-		$this->settings_renderer  = new SettingsPageRenderer();
-		$this->menu_registrar     = new MenuRegistrar(
+		$this->settings_renderer      = new SettingsPageRenderer();
+		$this->consultations_renderer = new ConsultationsPageRenderer();
+		$this->menu_registrar         = new MenuRegistrar(
 			self::PARENT_SLUG,
 			self::ADDONS_SLUG,
 			self::SETTINGS_SLUG,
+			self::CONSULTATIONS_SLUG,
 			$this->dashboard_renderer,
 			$this->addons_renderer,
-			$this->settings_renderer
+			$this->settings_renderer,
+			$this->consultations_renderer
 		);
 
 		add_action( 'admin_menu', [ $this->menu_registrar, 'register_parent' ] );
 		add_action( 'admin_menu', [ $this->menu_registrar, 'register_settings_submenu' ], 20 );
 		add_action( 'admin_menu', [ $this->menu_registrar, 'register_addons_submenu' ], 1000 );
+		add_action( 'admin_menu', [ $this->menu_registrar, 'register_consultations_submenu' ], 1010 );
 
 		add_action( 'wp_ajax_acrossai_addons_install',    [ $this->addons_ajax, 'install' ] );
 		add_action( 'wp_ajax_acrossai_addons_activate',   [ $this->addons_ajax, 'activate' ] );
