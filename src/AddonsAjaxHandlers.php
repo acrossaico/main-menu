@@ -31,6 +31,17 @@ class AddonsAjaxHandlers {
 		$this->guard( 'install_plugins' );
 		$addon = $this->resolve_addon();
 
+		// Defense-in-depth: the renderer only exposes an Install button for
+		// wp.org-sourced add-ons, but reject the request server-side too so
+		// a crafted POST can't drive an install from any other source.
+		// (See WordPress.org detailed plugin guideline #8.)
+		if ( ! AddonsInstaller::is_installable_source( $addon ) ) {
+			wp_send_json_error( [
+				'message' => __( 'Only WordPress.org-hosted add-ons can be installed from this page.', 'acrossai' ),
+				'code'    => 'non_wporg_source',
+			] );
+		}
+
 		$result = $this->installer->install( $addon );
 		if ( ! $result['success'] ) {
 			wp_send_json_error( [ 'message' => $result['message'], 'code' => 'install_failed' ] );

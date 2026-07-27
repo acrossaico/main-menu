@@ -5,6 +5,24 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.27] - 2026-07-27
+
+### Changed
+- **Add-ons page — install path is now WordPress.org-only.** Cards whose `source` is `wordpress.org` continue to render an in-page Install / Activate / Deactivate button (unchanged behaviour). Cards with any other `source` (e.g. `github`, `freemius`, or any consumer-defined value) now render an external **"Get add-on ↗"** link that opens the entry's `more_url` in a new tab — users install those add-ons via WP admin's standard **Plugins → Add New → Upload Plugin** flow, or via the vendor's own installer.
+- Rejects non-`wordpress.org` sources server-side in `AddonsInstaller::install()` and in the `wp_ajax_acrossai_addons_install` handler as defense-in-depth, so a crafted POST cannot drive an install from any other source.
+
+### Added
+- `AddonsInstaller::is_installable_source( array $addon ): bool` — public helper that returns `true` only when `$addon['source'] === 'wordpress.org'`. Consumers can use this to mirror the in-page behaviour in their own UI.
+- Class docblocks on `AddonsInstaller` and `AddonsPageRenderer` document the split and the WordPress.org guideline #8 rationale.
+
+### Rationale
+WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/add-ons from non-WordPress.org servers" for plugins distributed via the WordPress.org plugin directory. Restricting the install code path to `wordpress.org` add-ons keeps this package compliant when it ships inside a wp.org-hosted plugin. Non-wp.org add-ons remain fully discoverable on the page — they just link out instead of installing in place, matching the pattern used by WooCommerce and GiveWP.
+
+## [0.0.26] - 2026-07-27
+
+### Changed
+- **Consultations page — replaced the Calendly iframe with an external-link CTA.** The submenu at `?page=acrossai-consultations` now renders a self-contained call-to-action page (Space Grotesk headline, purple accent, dotted radial background) that opens `calendly.com/acrossai/using-ai-in-wordpress` in a new browser tab when the admin clicks the button. No Calendly script, iframe, cookie, or asset is loaded inside wp-admin any more. Complies with WordPress.org detailed plugin guideline #8 ("using iframes for admin pages" is prohibited).
+
 ## [0.0.25] - 2026-07-27
 
 ### Changed

@@ -5,15 +5,23 @@ namespace AcrossAI_Main_Menu;
 /**
  * Silent plugin install / activate / deactivate for the Add-ons page.
  *
- * Two supported sources per add-on entry:
- *   - source = 'wordpress.org' → resolves download URL via plugins_api()
- *   - source = 'github'        → uses the entry's 'download_url' (ZIP)
+ * Only ONE install source is supported: `source = 'wordpress.org'`.
+ * The download URL is resolved via WordPress core's own `plugins_api()`
+ * and handed to `Plugin_Upgrader`. This keeps the install path fully
+ * inside WordPress core's trusted flow.
  *
- * Add-ons page validates the slug against the registry (with acrossai_addons
- * filter applied) before calling into here — no client-supplied plugin_file
- * is trusted; find_plugin_file() resolves it server-side via exact folder
- * match (with optional 'install_folder' override for GitHub ZIPs whose
- * extracted folder differs from the slug).
+ * Add-ons whose source is anything other than `wordpress.org` (for
+ * example `github` or `freemius`) are NOT installable through this page.
+ * `AddonsPageRenderer` renders those cards with an external "Get add-on"
+ * link that points at the entry's `more_url`, leaving the actual install
+ * to WP admin's standard Plugins → Add New → Upload Plugin flow (or to
+ * the vendor's own installer).
+ *
+ * Rationale: WordPress.org detailed plugin guideline #8 prohibits
+ * "installing plugins/themes/add-ons from non-WordPress.org servers".
+ * Restricting the install code path to `wordpress.org`-sourced add-ons
+ * keeps this package compliant when it ships inside a plugin distributed
+ * via the WordPress.org plugin directory.
  */
 class AddonsInstaller {
 
@@ -21,7 +29,9 @@ class AddonsInstaller {
 	private static $installed_plugins = null;
 
 	/**
-	 * Install an add-on from wp.org or a GitHub ZIP.
+	 * Install an add-on from wp.org.
+	 *
+	 * Returns an error result if the add-on's source is not `wordpress.org`.
 	 *
 	 * @return array{success:bool, message:string, plugin_file:string}
 	 */
@@ -100,8 +110,8 @@ class AddonsInstaller {
 	/**
 	 * Locate the installed plugin file (e.g. "acme/acme.php") for an add-on.
 	 * Exact folder match only — no substring fallback. Add-ons whose extracted
-	 * folder differs from the slug (common for GitHub ZIPs) can declare
-	 * 'install_folder' in the registry entry to override the match target.
+	 * folder differs from the slug can declare 'install_folder' in the registry
+	 * entry to override the match target.
 	 */
 	public function find_plugin_file( array $addon ): ?string {
 		$slug = isset( $addon['slug'] ) ? (string) $addon['slug'] : '';
@@ -118,6 +128,17 @@ class AddonsInstaller {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Whether an add-on's source is eligible for in-page install.
+	 *
+	 * Only `wordpress.org` is installable; every other source (github,
+	 * freemius, or anything a consumer registers) is treated as
+	 * external-link-only.
+	 */
+	public static function is_installable_source( array $addon ): bool {
+		return isset( $addon['source'] ) && 'wordpress.org' === $addon['source'];
 	}
 
 	/** Invalidate the per-request get_plugins() cache after mutation. */
@@ -141,38 +162,28 @@ class AddonsInstaller {
 
 	/** @return string|\WP_Error */
 	private function resolve_download_url( array $addon ) {
-		$source = isset( $addon['source'] ) ? (string) $addon['source'] : '';
-
-		if ( 'wordpress.org' === $source ) {
-			$info = plugins_api( 'plugin_information', [
-				'slug'   => $addon['slug'],
-				'fields' => [ 'sections' => false, 'reviews' => false ],
-			] );
-			if ( is_wp_error( $info ) ) {
-				return $info;
-			}
-			if ( empty( $info->download_link ) ) {
-				return new \WP_Error( 'no_download_link', sprintf(
-					/* translators: %s: plugin slug */
-					__( 'Could not retrieve download URL for %s from WordPress.org.', 'acrossai' ),
-					$addon['slug']
-				) );
-			}
-			return $info->download_link;
+		if ( ! self::is_installable_source( $addon ) ) {
+			return new \WP_Error(
+				'non_wporg_source',
+				__( 'Only WordPress.org-hosted add-ons can be installed from this page. Use the "Get add-on" link on the card to open the add-on\'s home page and install it manually.', 'acrossai' )
+			);
 		}
 
-		if ( 'github' === $source ) {
-			if ( empty( $addon['download_url'] ) ) {
-				return new \WP_Error( 'missing_download_url', sprintf(
-					/* translators: %s: add-on name */
-					__( 'No download_url configured for %s.', 'acrossai' ),
-					$addon['name']
-				) );
-			}
-			return (string) $addon['download_url'];
+		$info = plugins_api( 'plugin_information', [
+			'slug'   => $addon['slug'],
+			'fields' => [ 'sections' => false, 'reviews' => false ],
+		] );
+		if ( is_wp_error( $info ) ) {
+			return $info;
 		}
-
-		return new \WP_Error( 'invalid_source', __( 'Invalid add-on source.', 'acrossai' ) );
+		if ( empty( $info->download_link ) ) {
+			return new \WP_Error( 'no_download_link', sprintf(
+				/* translators: %s: plugin slug */
+				__( 'Could not retrieve download URL for %s from WordPress.org.', 'acrossai' ),
+				$addon['slug']
+			) );
+		}
+		return $info->download_link;
 	}
 
 	/** @return array<string,array> */

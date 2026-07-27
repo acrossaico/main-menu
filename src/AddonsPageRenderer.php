@@ -8,23 +8,41 @@ namespace AcrossAI_Main_Menu;
  * Consumer plugins extend the list by hooking `acrossai_addons`:
  *
  *   add_filter( 'acrossai_addons', function ( array $addons ): array {
+ *       // wp.org-hosted add-on — installable in-page.
  *       $addons[] = array(
- *           'slug'         => 'my-free-plugin',
- *           'name'         => 'My Free Plugin',
- *           'description'  => 'Short description.',
- *           'icon'         => 'https://ps.w.org/my-free-plugin/assets/icon-128x128.png',
- *           'more_url'     => 'https://wordpress.org/plugins/my-free-plugin/',
- *           'source'       => 'wordpress.org',        // or 'github'
- *           'download_url' => 'https://...',          // required when source = 'github'
- *           'install_folder' => 'custom-folder-name', // optional; only if the ZIP extracts
- *                                                     // to a folder != slug
+ *           'slug'        => 'my-free-plugin',
+ *           'name'        => 'My Free Plugin',
+ *           'description' => 'Short description.',
+ *           'icon'        => 'https://ps.w.org/my-free-plugin/assets/icon-128x128.png',
+ *           'more_url'    => 'https://wordpress.org/plugins/my-free-plugin/',
+ *           'source'      => 'wordpress.org',
+ *       );
+ *       // Off-directory add-on (GitHub / Freemius / commercial) — renders
+ *       // as an external "Get add-on" link, NOT an in-page install button.
+ *       $addons[] = array(
+ *           'slug'        => 'my-github-plugin',
+ *           'name'        => 'My GitHub Plugin',
+ *           'description' => 'Short description.',
+ *           'icon'        => 'https://example.com/icon-128x128.png',
+ *           'more_url'    => 'https://github.com/example/my-github-plugin',
+ *           'source'      => 'github',                // anything != 'wordpress.org'
  *       );
  *       return $addons;
  *   } );
  *
- * Each card shows Install / Activate / Deactivate depending on the current
- * plugin state (checked against get_plugins() / is_plugin_active()). AJAX
- * for the actions is handled by AddonsAjaxHandlers.
+ * Card rendering rules:
+ *   - source === 'wordpress.org' → Install / Activate / Deactivate button
+ *     (AJAX-driven, handled by AddonsAjaxHandlers).
+ *   - source !== 'wordpress.org' → external "Get add-on" link pointing at
+ *     the entry's `more_url` (target=_blank, rel=noopener noreferrer). No
+ *     in-page install action is offered. Users install those add-ons via
+ *     Plugins → Add New → Upload Plugin (or via the vendor's own
+ *     installer once the paid plugin is activated).
+ *
+ * This split exists to comply with WordPress.org detailed plugin
+ * guideline #8, which forbids "installing plugins/themes/add-ons from
+ * non-WordPress.org servers" when the host plugin is distributed via
+ * the WordPress.org plugin directory.
  */
 class AddonsPageRenderer {
 
@@ -108,6 +126,11 @@ class AddonsPageRenderer {
 	/**
 	 * Compute the current install/active state for an add-on.
 	 *
+	 * Only meaningful for `wordpress.org`-sourced add-ons — non-wp.org
+	 * cards render as an external "Get add-on" link and never call this.
+	 * Callers should gate on `AddonsInstaller::is_installable_source()`
+	 * before consulting the return value.
+	 *
 	 * @return array{action:string, label:string, css_class:string}
 	 */
 	public function button_state_for( array $addon ): array {
@@ -140,7 +163,7 @@ class AddonsPageRenderer {
 	public function render(): void {
 		echo '<div class="wrap acrossai-addons">';
 		echo '<h1>' . esc_html__( 'Add-ons', 'acrossai' ) . '</h1>';
-		echo '<p class="description">' . esc_html__( 'Extend AcrossAI with free add-ons from WordPress.org and GitHub.', 'acrossai' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Extend AcrossAI with add-ons. WordPress.org-hosted add-ons install in place; add-ons distributed elsewhere open on the vendor\'s site so you can install them via Plugins → Add New → Upload Plugin.', 'acrossai' ) . '</p>';
 
 		$this->render_styles();
 
@@ -157,8 +180,7 @@ class AddonsPageRenderer {
 	// -------------------------------------------------------------------------
 
 	private function render_card( array $addon ): void {
-		$slug  = isset( $addon['slug'] ) ? (string) $addon['slug'] : '';
-		$state = $this->button_state_for( $addon );
+		$slug = isset( $addon['slug'] ) ? (string) $addon['slug'] : '';
 
 		printf( '<div class="acrossai-addons__card" data-slug="%s">', esc_attr( $slug ) );
 
@@ -177,13 +199,12 @@ class AddonsPageRenderer {
 		printf( '<p class="acrossai-addons__desc">%s</p>', esc_html( $addon['description'] ?? '' ) );
 
 		echo '<div class="acrossai-addons__actions">';
-		printf(
-			'<button type="button" class="acrossai-addons__btn %s" data-action="%s">%s</button>',
-			esc_attr( $state['css_class'] ),
-			esc_attr( $state['action'] ),
-			esc_html( $state['label'] )
-		);
-		if ( ! empty( $addon['more_url'] ) ) {
+		if ( AddonsInstaller::is_installable_source( $addon ) ) {
+			$this->render_install_button( $addon );
+		} else {
+			$this->render_external_link( $addon );
+		}
+		if ( ! empty( $addon['more_url'] ) && AddonsInstaller::is_installable_source( $addon ) ) {
 			printf(
 				'<a class="acrossai-addons__more" href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				esc_url( $addon['more_url'] ),
@@ -194,6 +215,37 @@ class AddonsPageRenderer {
 
 		echo '<div class="acrossai-addons__notice" role="status" aria-live="polite"></div>';
 		echo '</div>';
+	}
+
+	/** Render the AJAX-driven Install / Activate / Deactivate button (wp.org add-ons only). */
+	private function render_install_button( array $addon ): void {
+		$state = $this->button_state_for( $addon );
+		printf(
+			'<button type="button" class="acrossai-addons__btn %s" data-action="%s">%s</button>',
+			esc_attr( $state['css_class'] ),
+			esc_attr( $state['action'] ),
+			esc_html( $state['label'] )
+		);
+	}
+
+	/** Render the external "Get add-on" link (non-wp.org add-ons). */
+	private function render_external_link( array $addon ): void {
+		$href = ! empty( $addon['more_url'] ) ? (string) $addon['more_url'] : '';
+		if ( '' === $href ) {
+			// No destination configured — render a disabled affordance so
+			// the card doesn't look broken. Consumers should always set
+			// `more_url` for non-wp.org sources.
+			printf(
+				'<span class="acrossai-addons__btn button" aria-disabled="true">%s</span>',
+				esc_html__( 'Unavailable', 'acrossai' )
+			);
+			return;
+		}
+		printf(
+			'<a class="acrossai-addons__btn button button-primary" href="%s" target="_blank" rel="noopener noreferrer">%s <span aria-hidden="true">↗</span></a>',
+			esc_url( $href ),
+			esc_html__( 'Get add-on', 'acrossai' )
+		);
 	}
 
 	private function render_styles(): void {
