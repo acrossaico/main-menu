@@ -5,6 +5,11 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.25] - 2026-07-27
+
+### Changed
+- Redesigned the Consultations page to match the AcrossAI dashboard aesthetic: two-column layout with the intro/topics on the left and a sticky Calendly card on the right. Adds a headline ("A free 30-minute, one-on-one call about using AI in WordPress"), a lede, a topic bullet list, and a dark host card with Deepak Gupta's live headshot pulled from `acrossai.co`. Fully self-contained styles scoped under `.acai-consult`.
+
 ## [0.0.24] - 2026-07-25
 
 ### Added
@@ -131,6 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.25]: https://github.com/acrossai-co/main-menu/compare/0.0.24...0.0.25
 [0.0.24]: https://github.com/acrossai-co/main-menu/compare/0.0.23...0.0.24
 [0.0.23]: https://github.com/acrossai-co/main-menu/compare/0.0.22...0.0.23
 [0.0.22]: https://github.com/acrossai-co/main-menu/compare/0.0.21...0.0.22
