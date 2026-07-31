@@ -5,6 +5,23 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.29] - 2026-07-31
+
+### Changed
+- **Active add-ons now render a non-clickable "● Running" pill** on the Add-ons page instead of a "Deactivate" button. The Add-ons page is a discovery surface, not a plugin manager — deactivation stays in **Plugins → Installed Plugins** where WP admins expect it. Green pill with a status dot; new CSS classes `.acrossai-addons__status` / `.acrossai-addons__status--active` / `.acrossai-addons__status-dot`.
+- **Installed non-`wordpress.org` add-ons now show an in-page Activate button** instead of always rendering the external "Get add-on ↗" link. Detection is source-agnostic and driven by `AddonsInstaller::find_plugin_file()`, so a paid/off-directory add-on that the admin uploaded via **Plugins → Add New → Upload Plugin** can be activated straight from the AcrossAI Add-ons page. The Install code path remains restricted to `wordpress.org` sources (guideline #8 — no change). Card behaviour per state:
+  | source        | not installed         | installed, inactive | active           |
+  |---------------|-----------------------|---------------------|------------------|
+  | wordpress.org | **Install**           | **Activate**        | **● Running**    |
+  | anything else | **Get add-on ↗**      | **Activate**        | **● Running**    |
+- **`AI Connectors` baseline entry declares `install_folder => 'acrossai-ai-connectors'`** so install detection matches the actual plugin folder even though the registry slug (`ai-connectors`) differs. Serves as the canonical example for consumers whose extracted folder ≠ slug (the `install_folder` field already existed in `AddonsInstaller::find_plugin_file()`; this is its first baseline use).
+
+### Added
+- **`AddonsAjaxHandlers::activate` is now the primary hand-off point for non-wp.org add-ons** — no code changes needed (the handler was already source-agnostic, only checking `find_plugin_file()`), but this release makes it a documented public surface via the new render decision path in `AddonsPageRenderer::render_card()`.
+
+### Removed
+- Nothing removed from the public API. The old "Deactivate" button in `button_state_for()` is replaced by a `running` state (same array shape: `action`, `label`, `css_class`); consumers who read `button_state_for()` should treat `'running'` as a display-only sentinel and NOT wire it to an AJAX handler (there's no corresponding `wp_ajax_acrossai_addons_running` endpoint).
+
 ## [0.0.28] - 2026-07-31
 
 ### Changed
@@ -165,6 +182,7 @@ WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/ad
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.29]: https://github.com/acrossai-co/main-menu/compare/0.0.28...0.0.29
 [0.0.28]: https://github.com/acrossai-co/main-menu/compare/0.0.27...0.0.28
 [0.0.27]: https://github.com/acrossai-co/main-menu/compare/0.0.26...0.0.27
 [0.0.26]: https://github.com/acrossai-co/main-menu/compare/0.0.25...0.0.26

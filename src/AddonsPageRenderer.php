@@ -77,6 +77,10 @@ class AddonsPageRenderer {
 			'more_url'       => 'https://acrossai.co/ai-connectors/#pricing',
 			'learn_more_url' => 'https://acrossai.co/claude-connectors/',
 			'source'         => 'external',
+			// The paid "AI Connectors" bundle installs as the
+			// `acrossai-ai-connectors` plugin — folder name differs from the
+			// registry slug, so declare it explicitly for install detection.
+			'install_folder' => 'acrossai-ai-connectors',
 		),
 	);
 
@@ -143,9 +147,9 @@ class AddonsPageRenderer {
 		}
 		if ( is_plugin_active( $plugin_file ) ) {
 			return [
-				'action'    => 'deactivate',
-				'label'     => __( 'Deactivate', 'acrossai' ),
-				'css_class' => 'button',
+				'action'    => 'running',
+				'label'     => __( 'Running', 'acrossai' ),
+				'css_class' => 'acrossai-addons__status acrossai-addons__status--active',
 			];
 		}
 		return [
@@ -194,9 +198,14 @@ class AddonsPageRenderer {
 		printf( '<p class="acrossai-addons__desc">%s</p>', esc_html( $addon['description'] ?? '' ) );
 
 		echo '<div class="acrossai-addons__actions">';
-		if ( AddonsInstaller::is_installable_source( $addon ) ) {
+		$is_installed = null !== $this->installer->find_plugin_file( $addon );
+		if ( AddonsInstaller::is_installable_source( $addon ) || $is_installed ) {
+			// wp.org source → Install/Activate/Running.
+			// Non-wp.org but already installed (e.g. paid add-on uploaded via
+			// Plugins → Add New) → Activate/Running, but never Install.
 			$this->render_install_button( $addon );
 		} else {
+			// Non-wp.org and not installed → external "Get add-on ↗" link.
 			$this->render_external_link( $addon );
 		}
 		if ( ! empty( $addon['learn_more_url'] ) ) {
@@ -212,9 +221,18 @@ class AddonsPageRenderer {
 		echo '</div>';
 	}
 
-	/** Render the AJAX-driven Install / Activate / Deactivate button (wp.org add-ons only). */
+	/** Render the AJAX-driven Install / Activate button, OR a non-clickable "Running" badge when the plugin is active (wp.org add-ons only). */
 	private function render_install_button( array $addon ): void {
 		$state = $this->button_state_for( $addon );
+		if ( 'running' === $state['action'] ) {
+			printf(
+				'<span class="%s" aria-label="%s"><span class="acrossai-addons__status-dot" aria-hidden="true"></span>%s</span>',
+				esc_attr( $state['css_class'] ),
+				esc_attr__( 'Plugin is active', 'acrossai' ),
+				esc_html( $state['label'] )
+			);
+			return;
+		}
 		printf(
 			'<button type="button" class="acrossai-addons__btn %s" data-action="%s">%s</button>',
 			esc_attr( $state['css_class'] ),
@@ -313,6 +331,30 @@ class AddonsPageRenderer {
 .acrossai-addons__btn[disabled] {
 	opacity: 0.6;
 	cursor: progress;
+}
+.acrossai-addons__status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: default;
+	user-select: none;
+}
+.acrossai-addons__status--active {
+	background: #edfaf1;
+	color: #00733b;
+	border: 1px solid #b8e6c8;
+}
+.acrossai-addons__status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #00a854;
+	box-shadow: 0 0 0 3px rgba( 0, 168, 84, 0.15 );
 }
 .acrossai-addons__more {
 	font-size: 12px;
