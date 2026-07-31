@@ -52,36 +52,31 @@ class AddonsPageRenderer {
 	 */
 	private const ADDONS = array(
 		array(
-			'slug'        => 'acrossai-abilities-manager',
-			'name'        => 'AcrossAI Abilities Manager',
-			'description' => 'Discover, inspect, and manage WordPress Abilities registered on your site — browse the registry, view schemas, and control which abilities are exposed.',
-			'icon'        => 'https://ps.w.org/acrossai-abilities-manager/assets/icon-128x128.png',
-			'more_url'    => 'https://wordpress.org/plugins/acrossai-abilities-manager/',
-			'source'      => 'wordpress.org',
+			'slug'           => 'acrossai-abilities-manager',
+			'name'           => 'AcrossAI Abilities Manager',
+			'description'    => 'Discover, inspect, and manage WordPress Abilities registered on your site — browse the registry, view schemas, and control which abilities are exposed.',
+			'icon'           => 'https://acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg',
+			'more_url'       => 'https://wordpress.org/plugins/acrossai-abilities-manager/',
+			'learn_more_url' => 'https://acrossai.co/abilities-manager/',
+			'source'         => 'wordpress.org',
 		),
 		array(
-			'slug'        => 'acrossai-mcp-manager',
-			'name'        => 'AcrossAI MCP Manager',
-			'description' => 'Seamless integration with Model Context Protocol (MCP) servers — lets AI assistants and code editors safely access your WordPress site via secure application passwords.',
-			'icon'        => 'https://ps.w.org/acrossai-mcp-manager/assets/icon-128x128.png',
-			'more_url'    => 'https://wordpress.org/plugins/acrossai-mcp-manager/',
-			'source'      => 'wordpress.org',
+			'slug'           => 'acrossai-mcp-manager',
+			'name'           => 'AcrossAI MCP Manager',
+			'description'    => 'Seamless integration with Model Context Protocol (MCP) servers — lets AI assistants and code editors safely access your WordPress site via secure application passwords.',
+			'icon'           => 'https://acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg',
+			'more_url'       => 'https://wordpress.org/plugins/acrossai-mcp-manager/',
+			'learn_more_url' => 'https://acrossai.co/mcp-manager/',
+			'source'         => 'wordpress.org',
 		),
 		array(
-			'slug'        => 'acrossai-model-manager',
-			'name'        => 'AcrossAI Model Manager',
-			'description' => 'Control which AI model is used per capability, set request time limits, and review a full audit log of every AI generation call on your site.',
-			'icon'        => 'https://ps.w.org/acrossai-model-manager/assets/icon-128x128.png',
-			'more_url'    => 'https://wordpress.org/plugins/acrossai-model-manager/',
-			'source'      => 'wordpress.org',
-		),
-		array(
-			'slug'        => 'turn-off-ai-features',
-			'name'        => 'Turn Off AI Features',
-			'description' => 'Disable AI functionality in WordPress without touching code. Hooks into wp_supports_ai to return false when the option is enabled.',
-			'icon'        => 'https://ps.w.org/turn-off-ai-features/assets/icon-128x128.png',
-			'more_url'    => 'https://wordpress.org/plugins/turn-off-ai-features/',
-			'source'      => 'wordpress.org',
+			'slug'           => 'ai-connectors',
+			'name'           => 'AI Connectors',
+			'description'    => 'Connect your WordPress site to leading AI platforms and services with pre-built connectors — extend your workflows without writing custom integrations.',
+			'icon'           => 'https://acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg',
+			'more_url'       => 'https://acrossai.co/ai-connectors/#pricing',
+			'learn_more_url' => 'https://acrossai.co/claude-connectors/',
+			'source'         => 'external',
 		),
 	);
 
@@ -204,11 +199,11 @@ class AddonsPageRenderer {
 		} else {
 			$this->render_external_link( $addon );
 		}
-		if ( ! empty( $addon['more_url'] ) && AddonsInstaller::is_installable_source( $addon ) ) {
+		if ( ! empty( $addon['learn_more_url'] ) ) {
 			printf(
 				'<a class="acrossai-addons__more" href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-				esc_url( $addon['more_url'] ),
-				esc_html__( 'More info', 'acrossai' )
+				esc_url( $addon['learn_more_url'] ),
+				esc_html__( 'Learn more', 'acrossai' )
 			);
 		}
 		echo '</div>';
@@ -253,9 +248,15 @@ class AddonsPageRenderer {
 <style>
 .acrossai-addons__grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fill, minmax( 320px, 1fr ) );
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 	gap: 20px;
 	margin-top: 20px;
+}
+@media ( max-width: 1100px ) {
+	.acrossai-addons__grid { grid-template-columns: repeat( 2, minmax( 0, 1fr ) ); }
+}
+@media ( max-width: 720px ) {
+	.acrossai-addons__grid { grid-template-columns: minmax( 0, 1fr ); }
 }
 .acrossai-addons__card {
 	background: #fff;
@@ -282,8 +283,10 @@ class AddonsPageRenderer {
 	height: 56px;
 	flex: 0 0 56px;
 	border-radius: 6px;
-	object-fit: cover;
+	object-fit: contain;
 	background: #f0f0f1;
+	padding: 6px;
+	box-sizing: border-box;
 }
 .acrossai-addons__icon--placeholder {
 	background: linear-gradient( 135deg, #2271b1 0%, #135e96 100% );

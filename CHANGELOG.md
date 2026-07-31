@@ -5,6 +5,17 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.28] - 2026-07-31
+
+### Changed
+- **Add-ons page — refreshed the baseline catalogue.** The hard-coded list now ships three entries: **AcrossAI Abilities Manager** (wp.org install), **AcrossAI MCP Manager** (wp.org install), and **AI Connectors** (external "Get add-on ↗" link to `acrossai.co/ai-connectors/#pricing`). Removed the AcrossAI Model Manager and Turn Off AI Features entries from the baseline — consumers can still register them via the `acrossai_addons` filter.
+- **Shared brand icon for baseline cards.** All three baseline entries now render the AcrossAI SVG logo (`acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg`) instead of per-plugin `ps.w.org` PNGs, so the page reads as one product surface.
+- **Icon fit switched from `cover` to `contain`** (with 6px padding) so wide/horizontal SVG logos render fully instead of being cropped inside the 56×56 icon box.
+- **Grid is now fixed at 3 columns** (`repeat(3, minmax(0, 1fr))`) instead of `auto-fill` at a 320px min-width. Cards keep a consistent one-third width regardless of viewport width, so the layout is predictable as the catalogue grows past three entries. Responsive fallbacks: 2 columns under 1100px, 1 column under 720px.
+
+### Added
+- **`learn_more_url` add-on field** — optional URL rendered as a "Learn more" text link inside `.acrossai-addons__actions`. Applies to every add-on regardless of `source`, so external-CTA cards can point at a marketing/docs page separate from the CTA target. Replaces the previous wp.org-only "More info" link.
+
 ## [0.0.27] - 2026-07-27
 
 ### Changed
@@ -154,6 +165,9 @@ WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/ad
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.28]: https://github.com/acrossai-co/main-menu/compare/0.0.27...0.0.28
+[0.0.27]: https://github.com/acrossai-co/main-menu/compare/0.0.26...0.0.27
+[0.0.26]: https://github.com/acrossai-co/main-menu/compare/0.0.25...0.0.26
 [0.0.25]: https://github.com/acrossai-co/main-menu/compare/0.0.24...0.0.25
 [0.0.24]: https://github.com/acrossai-co/main-menu/compare/0.0.23...0.0.24
 [0.0.23]: https://github.com/acrossai-co/main-menu/compare/0.0.22...0.0.23
