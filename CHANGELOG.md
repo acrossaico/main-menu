@@ -5,6 +5,13 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.31] - 2026-08-02
+
+### Changed
+- **Notices submenu is now always registered.** Previously the submenu was only registered when at least one notice existed, which meant a bookmarked or shared link to `admin.php?page=acrossai-notices` returned "Sorry, you are not allowed to access this page." The page callback is now always wired up, so a direct visit renders the existing `NoticesPageRenderer` "All clear. No plugins are reporting issues right now." empty state.
+- **Empty-state sidebar entry is hidden via CSS**, not `remove_submenu_page()`. Removing the entry desynced `get_admin_page_parent()` and `$_registered_pages`, causing `user_can_access_admin_page()` to reject the request even for `manage_options` users. The new implementation prints a scoped inline `<style>` (`#adminmenu .wp-submenu li:has(> a[href="admin.php?page=…"]){display:none;}`) on `admin_head` when the notice count is zero — hides the whole `<li>` (no orphan bullet) while leaving the URL fully routable.
+- **`MenuRegistrar` gains a new public method** `print_notices_hide_css()` (the `admin_head` callback). No other public API changes.
+
 ## [0.0.30] - 2026-08-02
 
 ### Added

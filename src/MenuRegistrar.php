@@ -7,7 +7,10 @@ namespace AcrossAI_Main_Menu;
  *
  * Parent menu is registered at the default admin_menu priority (10).
  * Settings is registered at priority 20 so it lands right after the Dashboard.
- * Notices is registered at priority 25 (only if at least one notice exists).
+ * Notices is registered at priority 25. It always registers the page (so
+ * direct URL visits render the "All clear" empty state); when no notices
+ * exist the sidebar entry is hidden via a small inline CSS block printed
+ * to admin_head.
  * Add-ons is registered at priority 1000.
  * Consultations is registered at priority 1010 so it lands after Add-ons.
  */
@@ -128,23 +131,32 @@ class MenuRegistrar {
 	}
 
 	/**
-	 * Register the Notices submenu — only when at least one notice has been
-	 * registered through the `acrossai_notices` filter. Menu title includes a
-	 * count bubble styled the same as WordPress core's plugin-update badge.
+	 * Register the Notices submenu. The page is always attached to the
+	 * AcrossAI parent so both the sidebar link and a direct visit to
+	 * admin.php?page={notices_slug} work. When notices exist, the menu
+	 * title includes a count bubble styled the same as WordPress core's
+	 * plugin-update badge. When there are no notices, the sidebar row is
+	 * hidden via a small inline CSS block printed on admin_head — the page
+	 * itself remains reachable and renders the "All clear" empty state.
+	 *
+	 * We use CSS rather than remove_submenu_page(), because removing the
+	 * entry desyncs get_admin_page_parent() / $_registered_pages and causes
+	 * user_can_access_admin_page() to reject the request with "not allowed".
 	 */
 	public function register_notices_submenu(): void {
 		$count = $this->notices->count();
-		if ( 0 === $count ) {
-			return;
-		}
 
-		$menu_title = sprintf(
-			/* translators: %s: notice count HTML bubble */
-			__( 'Notices %s', 'acrossai' ),
-			'<span class="awaiting-mod acrossai-notices-count count-' . absint( $count ) . '"><span class="acrossai-notices-count-num">'
-				. esc_html( number_format_i18n( $count ) )
-				. '</span></span>'
-		);
+		if ( $count > 0 ) {
+			$menu_title = sprintf(
+				/* translators: %s: notice count HTML bubble */
+				__( 'Notices %s', 'acrossai' ),
+				'<span class="awaiting-mod acrossai-notices-count count-' . absint( $count ) . '"><span class="acrossai-notices-count-num">'
+					. esc_html( number_format_i18n( $count ) )
+					. '</span></span>'
+			);
+		} else {
+			$menu_title = __( 'Notices', 'acrossai' );
+		}
 
 		$this->notices_hook_suffix = add_submenu_page(
 			$this->parent_slug,
@@ -153,6 +165,24 @@ class MenuRegistrar {
 			'manage_options',
 			$this->notices_slug,
 			[ $this->notices_renderer, 'render' ]
+		);
+
+		if ( 0 === $count ) {
+			add_action( 'admin_head', [ $this, 'print_notices_hide_css' ] );
+		}
+	}
+
+	/**
+	 * Hide the empty Notices row from the AcrossAI submenu. Matches the
+	 * sidebar <li> whose anchor points at the notices page and collapses it.
+	 * Uses :has() (supported in all evergreen browsers) to hit the <li>
+	 * rather than the anchor, so no orphan bullet is left behind.
+	 */
+	public function print_notices_hide_css(): void {
+		$href = 'admin.php?page=' . $this->notices_slug;
+		printf(
+			"<style id=\"acrossai-hide-empty-notices\">#adminmenu .wp-submenu li:has(> a[href=\"%s\"]){display:none;}</style>\n",
+			esc_attr( $href )
 		);
 	}
 
