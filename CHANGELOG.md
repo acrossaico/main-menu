@@ -5,6 +5,36 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.30] - 2026-08-02
+
+### Added
+- **Cross-plugin notice system.** Any AcrossAI consumer plugin can push admin-notice records into a shared collection via the new `acrossai_notices` filter. Notices appear in two places:
+  - **Notices submenu** under the AcrossAI parent menu — always visible when at least one notice exists, with a WP-style count bubble (`.awaiting-mod`) in the menu label. Full styled list matching the dashboard aesthetic. Menu is *not* registered when count is zero.
+  - **Top-of-page summary** — one WordPress-native `.notice.notice-warning.is-dismissible` printed on every other admin page ("AcrossAI has N notifications for your attention — View notices →"). Clicking the ✕ persists dismissal until the notice set changes (fingerprint-based: `sha1` of sorted notice IDs stored in per-user meta `_acrossai_notices_summary_fp`).
+- **New public classes** under `AcrossAI_Main_Menu\`: `Notices`, `NoticesPageRenderer`, `NoticesAjaxHandlers`, `SummaryNoticeEmitter`.
+- **New page slug** `SettingsPage::NOTICES_SLUG = 'acrossai-notices'`.
+- **New static accessor** `SettingsPage::get_notices(): ?Notices` for consumers that want to inspect the current notice list programmatically.
+- **New AJAX endpoint** `wp_ajax_acrossai_notices_dismiss_summary` — nonce + `manage_options` guarded; server re-validates the client-supplied fingerprint against the current notice set (blocks poisoning the user meta with an unrelated hash).
+
+### Notice record shape
+```php
+add_filter( 'acrossai_notices', function ( array $notices ): array {
+    $notices[] = [
+        'id'      => 'wp_cron_disabled',   // required, unique per registration
+        'title'   => __( 'WP-Cron is disabled', 'my-plugin' ),
+        'message' => __( 'Scheduled tasks will not run until you configure a real system cron to hit wp-cron.php.', 'my-plugin' ),
+        'type'    => 'warning',            // error | warning | info | success (default: warning)
+        'source'  => 'My Plugin',          // optional label shown on the notice card
+        'action'  => [                     // optional CTA rendered as a purple button
+            'label' => __( 'Read the docs', 'my-plugin' ),
+            'url'   => 'https://developer.wordpress.org/plugins/cron/',
+        ],
+    ];
+    return $notices;
+} );
+```
+Later registrations of the same `id` are ignored (first-wins). Missing `id` or both `title` and `message` empty → the entry is dropped.
+
 ## [0.0.29] - 2026-07-31
 
 ### Changed

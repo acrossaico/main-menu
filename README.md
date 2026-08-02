@@ -4,6 +4,7 @@ A reusable Composer package that registers the shared **AcrossAI** top-level adm
 
 - **Dashboard** — the AcrossAI landing page (parent menu)
 - **Settings** — a shared WordPress Settings API page (flat or tabbed) that any plugin extends with its own sections, fields, and options
+- **Notices** — a shared admin-notice collector any plugin can push into via the `acrossai_notices` filter; a WP-native dismissible summary is emitted on every other admin page when notices exist
 
 Designed to be installed in **multiple plugins side-by-side**: `automattic/jetpack-autoloader` ensures only the highest-version copy boots, so the menu is registered exactly once regardless of how many plugins ship the package.
 
@@ -38,7 +39,10 @@ add_action( 'plugins_loaded', function () {
 That's it. The first plugin (by jetpack-autoloader version resolution) to boot registers, in order under the AcrossAI parent menu:
 
 - `AcrossAI` parent menu (`add_menu_page`, slug `acrossai`) — the Dashboard landing page
-- `Settings` submenu (slug `acrossai-settings`, priority **1000** so it lands last)
+- `Settings` submenu (slug `acrossai-settings`, priority **20**)
+- `Notices` submenu (slug `acrossai-notices`, priority **25** — only when at least one notice is registered via the `acrossai_notices` filter)
+- `Add-ons` submenu (slug `acrossai-addons`, priority **1000**)
+- `Consultations` submenu (slug `acrossai-consultations`, priority **1010**)
 
 If 3 plugins all ship this package, you still get **one** menu and **one** of each page. Every other copy becomes a no-op via jetpack-autoloader's version resolution.
 
@@ -250,6 +254,63 @@ The default tab-URL builder is `add_query_arg( 'tab', $slug )` against the curre
 
 For non-URL active-tab sources (block attribute, POST body, session), override `protected function get_requested_slug(): string` to read from your source instead of `$_GET['tab']`.
 
+## Notices
+
+Any consumer plugin can push admin-notice records into a shared collection with the `acrossai_notices` filter. Those records surface in two places:
+
+- **Notices submenu** under the AcrossAI parent (slug `acrossai-notices`) — always visible when at least one notice exists, with a count bubble in the menu label. Full styled list, no dismiss controls — this page is the always-visible collector.
+- **Top-of-page summary** — a single WordPress-native `.notice.notice-warning.is-dismissible` printed on every *other* admin page. Reads *"AcrossAI has N notifications for your attention — View notices →"*. Clicking the ✕ persists dismissal until the notice set changes.
+
+The Notices submenu is not registered when zero notices exist; the summary is not printed on the Notices page itself, when the count is zero, or for users without `manage_options`.
+
+### Registering a notice
+
+```php
+add_filter( 'acrossai_notices', function ( array $notices ): array {
+    if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+        $notices[] = [
+            'id'      => 'my_plugin_wp_cron_disabled',   // required, unique per registration
+            'title'   => __( 'WP-Cron is disabled', 'my-plugin' ),
+            'message' => __( 'Scheduled tasks will not run until you configure a real system cron to hit wp-cron.php.', 'my-plugin' ),
+            'type'    => 'warning',                       // error | warning | info | success (default: warning)
+            'source'  => 'My Plugin',                     // optional label shown on the notice card
+            'action'  => [                                // optional CTA — rendered as a purple button on the card
+                'label' => __( 'Read the docs', 'my-plugin' ),
+                'url'   => 'https://developer.wordpress.org/plugins/cron/',
+            ],
+        ];
+    }
+    return $notices;
+} );
+```
+
+The hook that adds the filter callback must fire **before** `admin_menu` (priority 25) — `init`, `admin_init`, or module bootstrap all work. Registering on `admin_notices` itself is too late: the notice list is memoized on first read.
+
+### Behaviour rules
+
+- **Deduped by `id`** — first registration wins, later entries with the same id are silently dropped. Use a plugin-prefixed id (`my_plugin_wp_cron_disabled`) so consumer plugins don't collide.
+- **Required fields** — `id` plus at least one of `title` or `message`. Missing either → the entry is dropped, not rendered.
+- **`type` fallback** — anything other than `error | warning | info | success` becomes `warning`.
+- **`message` accepts inline HTML** — rendered through `wp_kses_post`. `title` and `source` are `esc_html`-escaped.
+- **Dismiss persistence** — the summary's dismiss stores a fingerprint (`sha1` of the sorted notice ids) in the user meta `_acrossai_notices_summary_fp`. Add a notice, remove one, or change any id → the fingerprint changes and the summary reappears.
+- **Per-user dismiss** — every admin dismisses the summary for themselves; other admins still see it.
+
+### Reading the notice list
+
+For a consumer that wants to inspect the current collection (for a health check, dashboard widget, etc.):
+
+```php
+$notices = \AcrossAI_Main_Menu\SettingsPage::get_notices();
+if ( $notices && $notices->has_notices() ) {
+    $count = $notices->count();
+    foreach ( $notices->all() as $notice ) {
+        // $notice = [ 'id' => ..., 'title' => ..., 'message' => ..., 'type' => ..., 'source' => ..., 'action' => ... ]
+    }
+}
+```
+
+`SettingsPage::get_notices()` returns `null` if the main-menu package has not booted yet in this request — safe to null-guard as shown.
+
 ## How the page composes across plugins
 
 `do_settings_sections( 'acrossai-settings' )` iterates every section registered against that page slug, in registration order. So:
@@ -277,7 +338,10 @@ add_action( 'admin_init', 'plugin_c_register_settings', 30 );  // third
 | `\AcrossAI_Main_Menu\SettingsPage` | Entrypoint. Construct once per request: `new SettingsPage();`. Safe to construct from every consumer plugin — jetpack-autoloader picks one copy to boot. |
 | `\AcrossAI_Main_Menu\SettingsPage::PARENT_SLUG` | `'acrossai'` — the parent menu slug. |
 | `\AcrossAI_Main_Menu\SettingsPage::SETTINGS_SLUG` | `'acrossai-settings'` — the Settings submenu slug, page slug, and option_group. |
+| `\AcrossAI_Main_Menu\SettingsPage::NOTICES_SLUG` | `'acrossai-notices'` — the Notices submenu / page slug. |
 | `\AcrossAI_Main_Menu\SettingsPage::get_settings_renderer()` | Returns the shared `SettingsPageRenderer` instance (or `null` if the main-menu package has not booted yet in this request). Use it to call `->tab_page_slug( 'your-tab' )`. |
+| `\AcrossAI_Main_Menu\SettingsPage::get_notices()` | Returns the shared `Notices` registry (or `null` if the main-menu package has not booted yet in this request). Use it to inspect the current notice list. |
+| `\AcrossAI_Main_Menu\Notices` | Notice registry. `all()` returns the normalized list, `count()`/`has_notices()` are helpers, `fingerprint()` is the sha1 of sorted ids used to invalidate the summary dismissal. See the Notices section above for the filter shape. |
 | `\AcrossAI_Main_Menu\Tabs` | Abstract base for tab bars — filter dispatch (`acrossai_{key}_tabs`), normalization, capability gating, active-tab resolution, and a `render_tab_nav()` helper. Extend this directly for any UI that needs a tab bar *without* the Settings-API form/Save flow (custom admin screens, meta boxes, dashboard widgets, Tools submenus). |
 | `\AcrossAI_Main_Menu\TabbedPageRenderer` | Abstract base for tabbed WP admin pages. Extends `Tabs`. Subclass and implement `get_page_slug()` + `get_tabs_key()` to add a second tabbed page — the filter, rendering, capability gating, and per-tab form/Save button are all handled by the base class. |
 | `\AcrossAI_Main_Menu\SettingsPageRenderer` | Concrete subclass of `TabbedPageRenderer` used by the Settings page. Exposes `tab_page_slug( string $tab_slug )` returning e.g. `'acrossai-settings-providers'`. |
