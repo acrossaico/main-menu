@@ -46,10 +46,12 @@ class DashboardRenderer {
 .acai-brand { display: flex; align-items: center; gap: 12px; }
 .acai-brand-mark {
 	width: 40px; height: 40px; border-radius: 11px;
-	background: var(--accent); color: #fff;
+	background: #fff; border: 1px solid #E4E6EB;
 	display: flex; align-items: center; justify-content: center;
-	box-shadow: 0 6px 18px -6px var(--accent);
+	box-shadow: 0 6px 18px -6px rgba(85,56,238,0.35);
+	overflow: hidden;
 }
+.acai-brand-mark img { width: 26px; height: 26px; display: block; }
 .acai-brand-text { display: flex; flex-direction: column; line-height: 1.05; }
 .acai-brand-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
 .acai-brand-tag { font-size: 12px; color: #6B6F7B; font-weight: 500; }
@@ -158,6 +160,7 @@ class DashboardRenderer {
 .acai-about h2 {
 	font-family: 'Space Grotesk', sans-serif; font-weight: 600;
 	font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.02em; margin: 0 0 12px;
+	color: #FFFFFF;
 }
 .acai-about p { font-size: 15px; line-height: 1.65; color: #A6A9B4; margin: 0; text-wrap: pretty; }
 .acai-links { display: flex; flex-direction: column; gap: 10px; }
@@ -186,7 +189,7 @@ class DashboardRenderer {
 		<header class="acai-header">
 			<div class="acai-brand">
 				<div class="acai-brand-mark">
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 12 4l7 15"/><path d="M8.2 13.5h7.6"/></svg>
+					<img src="https://acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg" alt="" aria-hidden="true" />
 				</div>
 				<div class="acai-brand-text">
 					<span class="acai-brand-name">AcrossAI</span>
@@ -226,7 +229,7 @@ class DashboardRenderer {
 		<section>
 			<div class="acai-section-head">
 				<h2><?php esc_html_e( 'The Suite', 'acrossai' ); ?></h2>
-				<span class="acai-section-meta"><?php esc_html_e( '3 plugins · open source', 'acrossai' ); ?></span>
+				<span class="acai-section-meta"><?php esc_html_e( '3 plugins · modular stack', 'acrossai' ); ?></span>
 			</div>
 
 			<div class="acai-grid">
@@ -271,19 +274,19 @@ class DashboardRenderer {
 
 				<article class="acai-card">
 					<div class="acai-card-icon">
-						<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5L12 3z"/><path d="M3 12.5 12 17l9-4.5"/><path d="M3 17 12 21.5 21 17"/></svg>
+						<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4"/><path d="M15 2v4"/><path d="M7 6h10v4a5 5 0 0 1-10 0V6z"/><path d="M12 15v3"/><path d="M8 22h8"/><path d="M10 18h4v4h-4z"/></svg>
 					</div>
-					<h3><?php esc_html_e( 'Model Manager', 'acrossai' ); ?></h3>
-					<div class="acai-card-kicker"><?php esc_html_e( 'Providers & keys', 'acrossai' ); ?></div>
-					<p><?php esc_html_e( 'Register AI providers in one place. Store API keys for OpenAI, Anthropic, Google and more, set defaults, and route requests across models — so every AcrossAI plugin shares the same brain.', 'acrossai' ); ?></p>
+					<h3><?php esc_html_e( 'AI Connectors', 'acrossai' ); ?></h3>
+					<div class="acai-card-kicker"><?php esc_html_e( 'Assistants & integrations', 'acrossai' ); ?></div>
+					<p><?php esc_html_e( 'Connect your WordPress site to leading AI platforms and services with pre-built connectors — extend your workflows without writing custom integrations.', 'acrossai' ); ?></p>
 					<div class="acai-card-links">
-						<a class="acai-link-primary" href="https://wordpress.org/plugins/acrossai-model-manager/" target="_blank" rel="noopener">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM3.6 12a8.4 8.4 0 0 1 .73-3.42l4.02 11A8.4 8.4 0 0 1 3.6 12zm8.4 8.4c-.82 0-1.62-.12-2.37-.34l2.52-7.32 2.58 7.07.06.13a8.37 8.37 0 0 1-2.79.46zm1.16-12.34c.5-.03.96-.08.96-.08.45-.06.4-.72-.05-.69 0 0-1.36.1-2.23.1-.82 0-2.2-.1-2.2-.1-.46-.03-.51.66-.06.69 0 0 .43.05.88.08l1.3 3.55-1.82 5.46-3.03-9.01c.5-.03.96-.08.96-.08.45-.06.4-.72-.05-.69 0 0-1.36.1-2.23.1l-.53-.01A8.4 8.4 0 0 1 16.9 4.92c-.03 0-.06-.01-.1-.01-.82 0-1.4.71-1.4 1.48 0 .69.4 1.27.82 1.96.32.56.69 1.27.69 2.3 0 .72-.27 1.55-.64 2.7l-.84 2.8-3.03-9.02zm6.51 1.74a8.4 8.4 0 0 1-3.18 11.3l2.58-7.46c.48-1.2.64-2.17.64-3.02 0-.31-.02-.6-.06-.86z"/></svg>
-							WordPress.org
+						<a class="acai-link-primary" href="https://acrossai.co/ai-connectors/#pricing" target="_blank" rel="noopener">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+							<?php esc_html_e( 'Get add-on', 'acrossai' ); ?>
 						</a>
-						<a class="acai-link-muted" href="https://github.com/acrossai-co/" target="_blank" rel="noopener">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 4.9 18 4.9c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
-							GitHub
+						<a class="acai-link-muted" href="https://acrossai.co/claude-connectors/" target="_blank" rel="noopener">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+							<?php esc_html_e( 'Learn more', 'acrossai' ); ?>
 						</a>
 					</div>
 				</article>
