@@ -72,10 +72,10 @@ class AddonsPageRenderer {
 		array(
 			'slug'           => 'acrossai-pro',
 			'name'           => 'AcrossAI Pro',
-			'description'    => 'Contributes AI-assistant connector profiles (Claude and future providers) to AcrossAI MCP Manager\'s AI Connectors tab, so operators can wire assistants\' browser custom-connector flows to this WordPress site.',
+			'description'    => 'Contributes AI-assistant connector profiles (Claude and future providers) to AcrossAI MCP Manager\'s AI Connectors tab, and adds user access control across AcrossAI plugins so operators can govern who can use each capability.',
 			'icon'           => 'https://acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg',
-			'more_url'       => 'https://acrossai.co/acrossai-pro/#pricing',
-			'learn_more_url' => 'https://acrossai.co/acrossai-pro/',
+			'more_url'       => 'https://acrossai.co/pricing/#pricing',
+			'learn_more_url' => 'https://acrossai.co/pricing/#pricing',
 			'source'         => 'external',
 			'install_folder' => 'acrossai-pro',
 		),

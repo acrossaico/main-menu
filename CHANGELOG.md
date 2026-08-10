@@ -5,6 +5,12 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.33] - 2026-08-10
+
+### Changed
+- **AcrossAI Pro pricing links now point to `https://acrossai.co/pricing/#pricing`** (previously `https://acrossai.co/acrossai-pro/#pricing` and `https://acrossai.co/acrossai-pro/`). Applies to the AcrossAI Pro card on the Add-ons page (`more_url`, `learn_more_url`) and to both the primary "Get add-on" and secondary "Learn more" links on the dashboard AcrossAI Pro card.
+- **AcrossAI Pro description reworded** to mention user access control across AcrossAI plugins in addition to the AI-assistant connector profiles. Updated on the Add-ons page card and the dashboard card.
+
 ## [0.0.32] - 2026-08-10
 
 ### Changed
