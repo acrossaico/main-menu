@@ -70,17 +70,14 @@ class AddonsPageRenderer {
 			'source'         => 'wordpress.org',
 		),
 		array(
-			'slug'           => 'ai-connectors',
-			'name'           => 'AI Connectors',
-			'description'    => 'Connect your WordPress site to leading AI platforms and services with pre-built connectors — extend your workflows without writing custom integrations.',
+			'slug'           => 'acrossai-pro',
+			'name'           => 'AcrossAI Pro',
+			'description'    => 'Contributes AI-assistant connector profiles (Claude and future providers) to AcrossAI MCP Manager\'s AI Connectors tab, so operators can wire assistants\' browser custom-connector flows to this WordPress site.',
 			'icon'           => 'https://acrossai.co/wp-content/uploads/2026/07/acrossai-logo-2.svg',
-			'more_url'       => 'https://acrossai.co/ai-connectors/#pricing',
-			'learn_more_url' => 'https://acrossai.co/claude-connectors/',
+			'more_url'       => 'https://acrossai.co/acrossai-pro/#pricing',
+			'learn_more_url' => 'https://acrossai.co/acrossai-pro/',
 			'source'         => 'external',
-			// The paid "AI Connectors" bundle installs as the
-			// `acrossai-ai-connectors` plugin — folder name differs from the
-			// registry slug, so declare it explicitly for install detection.
-			'install_folder' => 'acrossai-ai-connectors',
+			'install_folder' => 'acrossai-pro',
 		),
 	);
 

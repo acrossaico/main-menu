@@ -5,6 +5,12 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.32] - 2026-08-10
+
+### Changed
+- **Baseline add-on "AI Connectors" renamed to "AcrossAI Pro"** to match the upstream plugin (folder + main file are now `acrossai-pro/acrossai-pro.php`; previously distributed as `acrossai-ai-connectors`). Registry slug updated from `ai-connectors` to `acrossai-pro`; `install_folder` updated from `acrossai-ai-connectors` to `acrossai-pro` (folder now equals slug so the field is retained only for schema clarity); description swapped for the upstream plugin header text; marketing links updated to `https://acrossai.co/acrossai-pro/`. Consumers overriding this entry via the `acrossai_addons` filter must key off the new `acrossai-pro` slug.
+- **Dashboard card renamed to "AcrossAI Pro"** with the same description and link updates as the Add-ons entry.
+
 ## [0.0.31] - 2026-08-02
 
 ### Changed

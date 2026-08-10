@@ -276,15 +276,15 @@ class DashboardRenderer {
 					<div class="acai-card-icon">
 						<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4"/><path d="M15 2v4"/><path d="M7 6h10v4a5 5 0 0 1-10 0V6z"/><path d="M12 15v3"/><path d="M8 22h8"/><path d="M10 18h4v4h-4z"/></svg>
 					</div>
-					<h3><?php esc_html_e( 'AI Connectors', 'acrossai' ); ?></h3>
+					<h3><?php esc_html_e( 'AcrossAI Pro', 'acrossai' ); ?></h3>
 					<div class="acai-card-kicker"><?php esc_html_e( 'Assistants & integrations', 'acrossai' ); ?></div>
-					<p><?php esc_html_e( 'Connect your WordPress site to leading AI platforms and services with pre-built connectors — extend your workflows without writing custom integrations.', 'acrossai' ); ?></p>
+					<p><?php esc_html_e( 'Contributes AI-assistant connector profiles (Claude and future providers) to AcrossAI MCP Manager\'s AI Connectors tab, so operators can wire assistants\' browser custom-connector flows to this WordPress site.', 'acrossai' ); ?></p>
 					<div class="acai-card-links">
-						<a class="acai-link-primary" href="https://acrossai.co/ai-connectors/#pricing" target="_blank" rel="noopener">
+						<a class="acai-link-primary" href="https://acrossai.co/acrossai-pro/#pricing" target="_blank" rel="noopener">
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
 							<?php esc_html_e( 'Get add-on', 'acrossai' ); ?>
 						</a>
-						<a class="acai-link-muted" href="https://acrossai.co/claude-connectors/" target="_blank" rel="noopener">
+						<a class="acai-link-muted" href="https://acrossai.co/acrossai-pro/" target="_blank" rel="noopener">
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
 							<?php esc_html_e( 'Learn more', 'acrossai' ); ?>
 						</a>
