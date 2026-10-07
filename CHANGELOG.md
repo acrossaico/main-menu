@@ -5,6 +5,13 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.34] - 2026-10-07
+
+### Changed
+- **`automattic/jetpack-autoloader` constraint bumped from `^5.0` to `^6.0`.** Consumer plugins must widen their own root constraint to `^6.0` and run `composer update automattic/jetpack-autoloader`, since Composer resolves a single version for the whole dependency tree. No code changes required — the autoloader still generates `vendor/autoload_packages.php`.
+- **`docs/upgrade-notes.md` rewritten for v6** (heading, constraint snippet, rationale). The stale "v5 requires PHP ≥ 7.4 / WordPress 5.6+" compatibility claims were replaced with this package's own PHP ≥ 8.1 requirement and a note that all plugins shipping the package should be updated together.
+- **README requirement line** now states `automattic/jetpack-autoloader: ^6.0`.
+
 ## [0.0.33] - 2026-08-10
 
 ### Changed
@@ -231,6 +238,11 @@ WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/ad
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.34]: https://github.com/acrossai-co/main-menu/compare/0.0.33...0.0.34
+[0.0.33]: https://github.com/acrossai-co/main-menu/compare/0.0.32...0.0.33
+[0.0.32]: https://github.com/acrossai-co/main-menu/compare/0.0.31...0.0.32
+[0.0.31]: https://github.com/acrossai-co/main-menu/compare/0.0.30...0.0.31
+[0.0.30]: https://github.com/acrossai-co/main-menu/compare/0.0.29...0.0.30
 [0.0.29]: https://github.com/acrossai-co/main-menu/compare/0.0.28...0.0.29
 [0.0.28]: https://github.com/acrossai-co/main-menu/compare/0.0.27...0.0.28
 [0.0.27]: https://github.com/acrossai-co/main-menu/compare/0.0.26...0.0.27

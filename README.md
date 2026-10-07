@@ -12,7 +12,7 @@ Designed to be installed in **multiple plugins side-by-side**: `automattic/jetpa
 
 - PHP 8.1+
 - WordPress 6.0+
-- `automattic/jetpack-autoloader: ^5.0` in your plugin's `composer.json`
+- `automattic/jetpack-autoloader: ^6.0` in your plugin's `composer.json`
 
 ## Installation
 

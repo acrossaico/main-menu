@@ -1,8 +1,8 @@
 # Upgrade Notes
 
-## Upgrading jetpack-autoloader from v3 to v5
+## Upgrading jetpack-autoloader to v6
 
-This package requires `automattic/jetpack-autoloader: ^5.0`.
+This package requires `automattic/jetpack-autoloader: ^6.0`.
 Plugins built on the WordPress Plugin Boilerplate typically ship with `^3.0`.
 
 ### Steps
@@ -10,7 +10,7 @@ Plugins built on the WordPress Plugin Boilerplate typically ship with `^3.0`.
 1. Open your plugin's `composer.json` and change the constraint:
 
 ```json
-"automattic/jetpack-autoloader": "^5.0"
+"automattic/jetpack-autoloader": "^6.0"
 ```
 
 2. Run the update:
@@ -19,7 +19,7 @@ Plugins built on the WordPress Plugin Boilerplate typically ship with `^3.0`.
 composer update automattic/jetpack-autoloader
 ```
 
-3. **No code changes needed.** The v5 autoloader still generates
+3. **No code changes needed.** The v6 autoloader still generates
    `vendor/autoload_packages.php` which your plugin already loads via:
 
 ```php
@@ -30,14 +30,16 @@ require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 
 ### Why the bump?
 
-`acrossai-co/main-menu` uses features in jetpack-autoloader v5 that
+`acrossai-co/main-menu` uses features in jetpack-autoloader v6 that
 are not available in v3. Because Composer requires all packages in the
 dependency tree to satisfy a single resolved version, your root
-`composer.json` must allow v5.
+`composer.json` must allow v6.
 
 ### Compatibility
 
-jetpack-autoloader v5 is backwards-compatible with v3 for all standard
+jetpack-autoloader v6 is backwards-compatible with v3/v5 for all standard
 usage patterns. If you experience any issues after upgrading, check:
-- PHP version: v5 requires PHP ≥ 7.4 (same as this package)
-- WordPress version: v5 works on WordPress 5.6+
+- PHP version: this package requires PHP ≥ 8.1; make sure your plugin's
+  `composer.json` platform constraint allows it
+- That every plugin shipping this package is updated together, since the
+  highest-version copy of the autoloader is the one that boots
