@@ -100,12 +100,26 @@ class MenuRegistrar {
 	}
 
 	/**
-	 * Register the Add-ons submenu. Same shape as the Notices submenu: the
-	 * page is always attached to the AcrossAI parent so a direct visit to
-	 * admin.php?page={addons_slug} stays routable, and when the filtered
-	 * add-ons list is empty the sidebar row is hidden via a small inline
-	 * CSS block printed on admin_head (never remove_submenu_page() — see
-	 * register_notices_submenu()).
+	 * Register the Add-ons submenu, with its sidebar row always hidden.
+	 *
+	 * The page is still attached to the AcrossAI parent so a direct visit to
+	 * admin.php?page={addons_slug} stays routable, and anything already linking
+	 * to it keeps working — `remove_submenu_page()` would desync
+	 * `get_admin_page_parent()` / `$_registered_pages` and break access (see
+	 * register_notices_submenu()). Only the sidebar row is collapsed, by a small
+	 * inline CSS block printed on admin_head.
+	 *
+	 * Unconditional since 0.0.36. 0.0.35 hid the row only when the add-ons list
+	 * came back empty, which never happens: the list is seeded from
+	 * `AddonsPageRenderer::ADDONS`, a hardcoded catalogue of the AcrossAI
+	 * plugins, and the only filter anyone registers against `acrossai_addons`
+	 * removes a single entry. So the check could not reach empty on a real site
+	 * and the row always showed — the behaviour this was meant to fix.
+	 *
+	 * The emptiness test was borrowed from the Notices row, where it is
+	 * meaningful because notices genuinely come and go. A static catalogue of
+	 * three sibling plugins is not that, and a sidebar entry pointing at a page
+	 * that lists them is not worth the row.
 	 */
 	public function register_addons_submenu(): void {
 		$this->addons_hook_suffix = add_submenu_page(
@@ -117,9 +131,7 @@ class MenuRegistrar {
 			[ $this->addons_renderer, 'render' ]
 		);
 
-		if ( empty( $this->addons_renderer->get_addons() ) ) {
-			add_action( 'admin_head', [ $this, 'print_addons_hide_css' ] );
-		}
+		add_action( 'admin_head', [ $this, 'print_addons_hide_css' ] );
 	}
 
 	public function register_settings_submenu(): void {
@@ -195,11 +207,11 @@ class MenuRegistrar {
 	}
 
 	/**
-	 * Hide the empty Add-ons row from the AcrossAI submenu. Printed only
-	 * when the `acrossai_addons` filter leaves no entries to show.
+	 * Hide the Add-ons row from the AcrossAI submenu. Printed unconditionally —
+	 * the page stays routable, only the sidebar entry is gone.
 	 */
 	public function print_addons_hide_css(): void {
-		$this->print_submenu_hide_css( $this->addons_slug, 'acrossai-hide-empty-addons' );
+		$this->print_submenu_hide_css( $this->addons_slug, 'acrossai-hide-addons' );
 	}
 
 	/**

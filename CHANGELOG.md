@@ -5,6 +5,15 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.36] - 2026-10-21
+
+### Changed
+- **The Add-ons sidebar row is now hidden always, not just when the list is empty.** 0.0.35's condition could never be met in practice: the list is seeded from `AddonsPageRenderer::ADDONS`, a hardcoded catalogue of the AcrossAI plugins, and the only filter registered against `acrossai_addons` anywhere removes a single entry. So `empty()` never returned true on a real site and the row always showed — the opposite of what that release intended.
+
+  The emptiness test was borrowed from the Notices row, where it is meaningful because notices genuinely come and go. A static catalogue of three sibling plugins is not that. The row was useful while the add-on list was expected to grow; with three plugins it is not worth a permanent sidebar entry.
+- **The page itself is unchanged and still routable.** `admin.php?page=acrossai-addons` renders exactly as before, so existing links keep working — only the sidebar `<li>` is collapsed. `remove_submenu_page()` is still avoided for the reason given in 0.0.31: it desyncs `get_admin_page_parent()` / `$_registered_pages` and breaks access to the page.
+- **The inline style's id is now `acrossai-hide-addons`** (was `acrossai-hide-empty-addons`), since it is no longer about emptiness. Anyone overriding it by id needs the new value; the Notices id is untouched.
+
 ## [0.0.35] - 2026-10-21
 
 ### Changed
@@ -245,6 +254,7 @@ WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/ad
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.36]: https://github.com/acrossaico/main-menu/compare/0.0.35...0.0.36
 [0.0.35]: https://github.com/acrossaico/main-menu/compare/0.0.34...0.0.35
 [0.0.34]: https://github.com/acrossaico/main-menu/compare/0.0.33...0.0.34
 [0.0.33]: https://github.com/acrossaico/main-menu/compare/0.0.32...0.0.33
