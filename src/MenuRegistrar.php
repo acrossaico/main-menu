@@ -11,7 +11,9 @@ namespace AcrossAI_Main_Menu;
  * direct URL visits render the "All clear" empty state); when no notices
  * exist the sidebar entry is hidden via a small inline CSS block printed
  * to admin_head.
- * Add-ons is registered at priority 1000.
+ * Add-ons is registered at priority 1000. Like Notices, the page always
+ * registers and its sidebar row is hidden via CSS when the add-ons list
+ * is empty.
  * Consultations is registered at priority 1010 so it lands after Add-ons.
  */
 class MenuRegistrar {
@@ -97,6 +99,14 @@ class MenuRegistrar {
 		);
 	}
 
+	/**
+	 * Register the Add-ons submenu. Same shape as the Notices submenu: the
+	 * page is always attached to the AcrossAI parent so a direct visit to
+	 * admin.php?page={addons_slug} stays routable, and when the filtered
+	 * add-ons list is empty the sidebar row is hidden via a small inline
+	 * CSS block printed on admin_head (never remove_submenu_page() — see
+	 * register_notices_submenu()).
+	 */
 	public function register_addons_submenu(): void {
 		$this->addons_hook_suffix = add_submenu_page(
 			$this->parent_slug,
@@ -106,6 +116,10 @@ class MenuRegistrar {
 			$this->addons_slug,
 			[ $this->addons_renderer, 'render' ]
 		);
+
+		if ( empty( $this->addons_renderer->get_addons() ) ) {
+			add_action( 'admin_head', [ $this, 'print_addons_hide_css' ] );
+		}
 	}
 
 	public function register_settings_submenu(): void {
@@ -173,16 +187,32 @@ class MenuRegistrar {
 	}
 
 	/**
-	 * Hide the empty Notices row from the AcrossAI submenu. Matches the
-	 * sidebar <li> whose anchor points at the notices page and collapses it.
-	 * Uses :has() (supported in all evergreen browsers) to hit the <li>
-	 * rather than the anchor, so no orphan bullet is left behind.
+	 * Hide the empty Notices row from the AcrossAI submenu. Printed only
+	 * when the notice count is zero.
 	 */
 	public function print_notices_hide_css(): void {
-		$href = 'admin.php?page=' . $this->notices_slug;
+		$this->print_submenu_hide_css( $this->notices_slug, 'acrossai-hide-empty-notices' );
+	}
+
+	/**
+	 * Hide the empty Add-ons row from the AcrossAI submenu. Printed only
+	 * when the `acrossai_addons` filter leaves no entries to show.
+	 */
+	public function print_addons_hide_css(): void {
+		$this->print_submenu_hide_css( $this->addons_slug, 'acrossai-hide-empty-addons' );
+	}
+
+	/**
+	 * Print a scoped inline rule collapsing the sidebar <li> that links to
+	 * the given submenu slug. Uses :has() (supported in all evergreen
+	 * browsers) to hit the <li> rather than the anchor, so no orphan bullet
+	 * is left behind.
+	 */
+	private function print_submenu_hide_css( string $slug, string $style_id ): void {
 		printf(
-			"<style id=\"acrossai-hide-empty-notices\">#adminmenu .wp-submenu li:has(> a[href=\"%s\"]){display:none;}</style>\n",
-			esc_attr( $href )
+			"<style id=\"%s\">#adminmenu .wp-submenu li:has(> a[href=\"%s\"]){display:none;}</style>\n",
+			esc_attr( $style_id ),
+			esc_attr( 'admin.php?page=' . $slug )
 		);
 	}
 

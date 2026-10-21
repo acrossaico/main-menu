@@ -5,6 +5,13 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.35] - 2026-10-21
+
+### Changed
+- **Add-ons sidebar row is hidden via CSS when the add-ons list is empty.** Mirrors the Notices behaviour from 0.0.31: `register_addons_submenu()` always registers the page (so `admin.php?page=acrossai-addons` stays routable — `remove_submenu_page()` would desync `get_admin_page_parent()` / `$_registered_pages` and break access), and when `acrossai_addons` leaves no entries it prints a scoped inline `<style>` on `admin_head` collapsing the sidebar `<li>`.
+- **`MenuRegistrar` gains `print_addons_hide_css()`** (the `admin_head` callback); the shared rule is now emitted by a private `print_submenu_hide_css()` helper that `print_notices_hide_css()` also uses. No behaviour change for Notices and no removals from the public API.
+- **`AddonsPageRenderer::render()` renders an empty state** ("No add-ons are available right now.") instead of an empty grid when the filtered list is empty.
+
 ## [0.0.34] - 2026-10-07
 
 ### Changed
@@ -238,6 +245,7 @@ WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/ad
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.35]: https://github.com/acrossai-co/main-menu/compare/0.0.34...0.0.35
 [0.0.34]: https://github.com/acrossai-co/main-menu/compare/0.0.33...0.0.34
 [0.0.33]: https://github.com/acrossai-co/main-menu/compare/0.0.32...0.0.33
 [0.0.32]: https://github.com/acrossai-co/main-menu/compare/0.0.31...0.0.32

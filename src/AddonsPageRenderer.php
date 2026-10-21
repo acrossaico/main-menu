@@ -163,8 +163,18 @@ class AddonsPageRenderer {
 
 		$this->render_styles();
 
+		$addons = $this->get_addons();
+		if ( empty( $addons ) ) {
+			// Sidebar row is hidden in this state (see MenuRegistrar), but the
+			// URL stays routable, so render a plain empty state instead of an
+			// empty grid.
+			echo '<p>' . esc_html__( 'No add-ons are available right now.', 'acrossai' ) . '</p>';
+			echo '</div>';
+			return;
+		}
+
 		echo '<div class="acrossai-addons__grid">';
-		foreach ( $this->get_addons() as $addon ) {
+		foreach ( $addons as $addon ) {
 			$this->render_card( $addon );
 		}
 		echo '</div>';
