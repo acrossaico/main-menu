@@ -5,15 +5,16 @@ namespace AcrossAI_Main_Menu;
 /**
  * Renderer for the "Consultations" submenu page under the AcrossAI parent.
  *
- * Presents a single-page CTA that links out to Calendly in a new tab —
- * no third-party iframe or script is loaded inside wp-admin.
+ * Presents a single-page CTA that links out to the AcrossAI consultations
+ * page (https://acrossai.co/consultations/) in a new tab — no third-party
+ * booking widget, iframe or script is loaded inside wp-admin.
  *
  * Self-contained styling — matches the DashboardRenderer look (Space Grotesk
  * + IBM Plex Sans, purple accent, dotted radial background, hero glow).
  */
 class ConsultationsPageRenderer {
 
-	private const CALENDLY_URL = 'https://calendly.com/acrossai/using-ai-in-wordpress';
+	private const CONSULTATIONS_URL = 'https://acrossai.co/consultations/';
 
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -180,8 +181,8 @@ class ConsultationsPageRenderer {
 				<h1><?php esc_html_e( 'A free 30-minute call about using AI in WordPress.', 'acrossai' ); ?></h1>
 				<p class="acai-consult__lede"><?php esc_html_e( 'Bring your questions about the AcrossAI stack — Abilities, MCP, Add-ons — or your broader AI-on-WordPress plans. We\'ll dig into your setup live and leave you with concrete next steps. No sales pitch, no obligation.', 'acrossai' ); ?></p>
 
-				<a class="acai-consult__cta" href="<?php echo esc_url( self::CALENDLY_URL ); ?>" target="_blank" rel="noopener noreferrer">
-					<span><?php esc_html_e( 'Book on Calendly', 'acrossai' ); ?></span>
+				<a class="acai-consult__cta" href="<?php echo esc_url( self::CONSULTATIONS_URL ); ?>" target="_blank" rel="noopener noreferrer">
+					<span><?php esc_html_e( 'Book a free consultation', 'acrossai' ); ?></span>
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
 				</a>
 

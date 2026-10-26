@@ -5,6 +5,11 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.37] - 2026-10-26
+
+### Changed
+- **Consultations page now links to `https://acrossai.co/consultations/` instead of Calendly.** The call-to-action no longer points at `calendly.com`; it opens the AcrossAI consultations page in a new tab. The button label is now "Book a free consultation" and the `CALENDLY_URL` constant is renamed `CONSULTATIONS_URL`. No third-party booking widget, iframe or script was (or is) loaded inside wp-admin — this is purely a change of destination for the existing external link.
+
 ## [0.0.36] - 2026-10-21
 
 ### Changed
@@ -254,6 +259,7 @@ WordPress.org detailed plugin guideline #8 forbids "installing plugins/themes/ad
 ### Added
 - Initial release: `AcrossAI` parent menu and shared Settings page.
 
+[0.0.37]: https://github.com/acrossaico/main-menu/compare/0.0.36...0.0.37
 [0.0.36]: https://github.com/acrossaico/main-menu/compare/0.0.35...0.0.36
 [0.0.35]: https://github.com/acrossaico/main-menu/compare/0.0.34...0.0.35
 [0.0.34]: https://github.com/acrossaico/main-menu/compare/0.0.33...0.0.34
