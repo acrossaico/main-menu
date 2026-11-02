@@ -146,6 +146,10 @@ class SettingsPage {
 		add_action( 'admin_menu', [ $this->menu_registrar, 'register_notices_submenu' ], 25 );
 		add_action( 'admin_menu', [ $this->menu_registrar, 'register_addons_submenu' ], 1000 );
 		add_action( 'admin_menu', [ $this->menu_registrar, 'register_consultations_submenu' ], 1010 );
+		// Last word on order, at 1100: after every page is registered (Consultations
+		// at 1010 is the latest) and before AcrossAI Pro's Freemius grouping at
+		// PHP_INT_MAX, which depends on the Add-ons row this places for it.
+		add_action( 'admin_menu', [ $this->menu_registrar, 'enforce_order' ], 1100 );
 
 		add_action( 'wp_ajax_acrossai_addons_install',    [ $this->addons_ajax, 'install' ] );
 		add_action( 'wp_ajax_acrossai_addons_activate',   [ $this->addons_ajax, 'activate' ] );

@@ -15,6 +15,9 @@ namespace AcrossAI_Main_Menu;
  * registers and its sidebar row is hidden via CSS when the add-ons list
  * is empty.
  * Consultations is registered at priority 1010 so it lands after Add-ons.
+ * `enforce_order()` then runs at 1100 and puts the whole group into the
+ * intended order — see that method for why those priorities, and why the
+ * hidden Add-ons row still has a job.
  */
 class MenuRegistrar {
 
@@ -242,5 +245,134 @@ class MenuRegistrar {
 
 	public function get_notices_hook_suffix(): ?string {
 		return $this->notices_hook_suffix;
+	}
+
+	/**
+	 * Put the AcrossAI submenu into one deliberate order.
+	 *
+	 * ## Why this lives here
+	 *
+	 * Five repositories register pages under this one parent — this package,
+	 * the Abilities Manager, the MCP Manager, AcrossAI Pro, and Freemius on
+	 * Pro's behalf. Each chose an `admin_menu` priority in isolation, so the
+	 * order a site ends up with is an accident of which numbers happened to
+	 * be picked and which plugins happen to be active. Nobody could state the
+	 * intended order, because no file contained it.
+	 *
+	 * This package owns the parent menu, so it is the only honest home for
+	 * the answer. The list below IS the intended order, in one place, and
+	 * `acrossai_menu_order` lets a site or a later plugin change it without a
+	 * release here.
+	 *
+	 * ## Priority 1100
+	 *
+	 * After everything that registers a page — Consultations is the latest at
+	 * 1010 — and before `PHP_INT_MAX`, which AcrossAI Pro uses to group its
+	 * Freemius rows. That grouping lifts `acrossai-pro-account` out and
+	 * re-inserts it directly after the Add-ons entry, so Add-ons appears in
+	 * the list below immediately before Pro: the row itself is hidden by CSS,
+	 * and its only remaining job is to be the anchor that puts Pro in the
+	 * right place. Fighting that would mean two passes arguing; placing the
+	 * anchor correctly means they agree.
+	 *
+	 * ## Unknown entries are kept, never dropped
+	 *
+	 * Anything not named below keeps its relative order and follows the named
+	 * entries. A plugin this package has never heard of must not lose its
+	 * page because it was not in a list written before it existed.
+	 *
+	 * @since 0.0.38
+	 * @return void
+	 */
+	public function enforce_order(): void {
+		global $submenu;
+
+		if ( empty( $submenu[ $this->parent_slug ] ) || ! is_array( $submenu[ $this->parent_slug ] ) ) {
+			return;
+		}
+
+		/**
+		 * The intended order of the AcrossAI submenu, as page slugs.
+		 *
+		 * A value matches a slug exactly, or — for a page registered as a full
+		 * `admin.php?...` URL rather than a bare slug, as Quick Connect is —
+		 * as a substring of it.
+		 *
+		 * @since 0.0.38
+		 *
+		 * @param string[] $order Page slugs, in the order they should appear.
+		 */
+		$order = (array) apply_filters(
+			'acrossai_menu_order',
+			array(
+				$this->parent_slug,           // AcrossAI — WordPress repeats the parent as the first row.
+				'quick-connect',              // Connect — registered as a URL, matched by substring.
+				'acrossai_mcp_manager',       // MCP
+				'acrossai-abilities-manager', // Abilities
+				'acrossai-integrations',      // Integrations
+				'acrossai-pro-fleet',         // Fleet
+				'acrossai-settings',          // Settings
+				'acrossai_mcp_logs',          // Logs
+				'acrossai-notices',           // Notices
+				'acrossai_mcp_troubleshoot',  // Troubleshoot
+				'acrossai-addons',            // Hidden; anchors Pro — see the docblock.
+				'acrossai-pro-account',       // Pro
+				'acrossai-consultations',     // Consultations
+			)
+		);
+
+		$entries = array_values( $submenu[ $this->parent_slug ] );
+		$taken   = array();
+		$placed  = array();
+
+		// Exact matches first, across the WHOLE list, before any substring
+		// matching runs. Otherwise `acrossai_mcp_manager` would claim Quick
+		// Connect, whose URL contains it, and the real MCP page would be left
+		// to fall through to the unknown pile.
+		foreach ( $order as $position => $slug ) {
+			foreach ( $entries as $i => $entry ) {
+				if ( isset( $taken[ $i ] ) || ! isset( $entry[2] ) ) {
+					continue;
+				}
+
+				if ( (string) $entry[2] === $slug ) {
+					$placed[ $position ] = $entry;
+					$taken[ $i ]         = true;
+					break;
+				}
+			}
+		}
+
+		foreach ( $order as $position => $slug ) {
+			if ( isset( $placed[ $position ] ) ) {
+				continue;
+			}
+
+			foreach ( $entries as $i => $entry ) {
+				if ( isset( $taken[ $i ] ) || ! isset( $entry[2] ) ) {
+					continue;
+				}
+
+				if ( false !== strpos( (string) $entry[2], $slug ) ) {
+					$placed[ $position ] = $entry;
+					$taken[ $i ]         = true;
+					break;
+				}
+			}
+		}
+
+		ksort( $placed );
+
+		$ordered = array_values( $placed );
+
+		// Everything this list did not name, in the order it already had.
+		foreach ( $entries as $i => $entry ) {
+			if ( ! isset( $taken[ $i ] ) ) {
+				$ordered[] = $entry;
+			}
+		}
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reordering this package's own parent menu is the point of the method.
+		$submenu[ $this->parent_slug ] = $ordered;
 	}
 }
