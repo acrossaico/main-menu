@@ -5,6 +5,23 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.38] - 2026-11-03
+
+### Added
+- **The AcrossAI submenu now has one deliberate order, declared in one place.** Five repositories register pages under this parent — this package, the Abilities Manager, the MCP Manager, AcrossAI Pro, and Freemius on Pro's behalf — and each picked an `admin_menu` priority in isolation. The order a site ended up with was an accident of which numbers happened to be chosen and which plugins happened to be active, and no file stated the intent. `MenuRegistrar::enforce_order()` now does, at priority 1100:
+
+  AcrossAI, Connect, MCP, Abilities, Integrations, Fleet, Settings, Logs, Notices, Troubleshoot, Pro, Consultations.
+
+- **`acrossai_menu_order` filter.** The list above is filterable, so a site or a later plugin can change the order without a release here.
+
+### Changed
+- **Entries this package has never heard of are kept, not dropped.** Anything not named in the list keeps its relative order and follows the named entries. A plugin that did not exist when the list was written must not lose its page because of that.
+- **The hidden Add-ons row now has a job.** It is placed immediately before Pro because AcrossAI Pro's Freemius grouping runs at `PHP_INT_MAX` — after this — and re-inserts the account page directly after Add-ons. Putting the anchor in the right place means the two passes agree instead of arguing. The row itself stays hidden by CSS, as it has since 0.0.36.
+
+### Notes
+- Priority 1100 is deliberate: after every page is registered (Consultations at 1010 is the latest) and before `PHP_INT_MAX`.
+- Pages registered as a full `admin.php?…` URL rather than a bare slug — Quick Connect is the only one today — are matched by substring. Exact matches are resolved across the whole list first, so `acrossai_mcp_manager` cannot claim the Quick Connect URL that contains it.
+
 ## [0.0.37] - 2026-10-26
 
 ### Changed
