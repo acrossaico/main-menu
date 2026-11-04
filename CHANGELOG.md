@@ -5,6 +5,23 @@ All notable changes to `acrossai-co/main-menu` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.39] - 2026-11-04
+
+### Changed
+- **The Consultations page now presents two routes instead of one free call.** Consultations on acrossai.co are no longer a single free offer: the page is one URL with two doors, `?type=free` (a request form, answered by hand, usually within two working days) and `?type=paid` (a live Google Calendar, self-serve, AcrossAI Pro licence required). This page said "A free 30-minute call about using AI in WordPress" with a single "Book a free consultation" button pointing at the bare URL — which landed a visitor with no licence on the Pro calendar and told them they needed one. It now shows both doors as cards and links each to its own `?type=` URL.
+
+- **Free is listed first; Pro carries the visual weight.** The free card comes first because it is the one most readers can actually use, and an upsell placed ahead of a free offer reads as a toll gate. The Pro card keeps the accent border and the filled button so it does not get lost by coming second.
+
+### Removed
+- **The "Can't find a time that works? Email deepak@acrossai.co" footer line.** With two routes on the page and a form behind one of them, a third way to make contact was one option too many. Its `.acai-consult__foot` styles went with it rather than being left as dead CSS.
+
+### Notes
+- **Neither door is hidden, and that is deliberate.** This package cannot tell whether a site holds a Pro licence — the Freemius SDK was retired in the MCP Manager (F028) and nothing here talks to `acrossai-pro`. Rather than guess and hide the wrong card, the page states what each route needs and lets the reader choose. Gating it would mean new state, a new request and a new failure mode to decide which of two links to show.
+- Still no third-party booking widget, iframe or script inside wp-admin. Both cards are plain external links opening in a new tab, as before.
+- `CONSULTATIONS_URL` is retained and is now the base for two new private constants, `FREE_URL` and `PAID_URL`.
+- The host portrait now loads the 225x300 derivative rather than the 1200x1600 original — it renders at 54px, and the full-size file is roughly two megapixels. Its `object-position` is set to the face; a default centre crop on that portrait loses it.
+- Added a `prefers-reduced-motion` block, which the page previously lacked: the hero glow animates on a loop.
+
 ## [0.0.38] - 2026-11-03
 
 ### Added
